@@ -9,6 +9,8 @@
  * LOCAL_WP=http://localhost/
  * WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
  * WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ * POST_INSERT_CHUNK=100
+ * ITERATIONS=100
  * npm start
  */
 
