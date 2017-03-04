@@ -24,7 +24,7 @@ the application with a simple
 Configuration might be adjusted in the `index.js` files config-object or via
 environment variables:
 
-`MYSQL_PID=0000 MYSQL_HOST=localhost MYSQL_USER=user MYSQL_PASS=pass MYSQL_DB=woo_speed LOCAL_WP=http://localhost/ WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx npm start`
+    MYSQL_PID=0000 MYSQL_HOST=localhost MYSQL_USER=user MYSQL_PASS=pass MYSQL_DB=woo_speed LOCAL_WP=http://localhost/ WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx npm start
 
 After completing the test cycle, the test data is written to a benchmark csv
 file in the benchmark directory of the app directory.
