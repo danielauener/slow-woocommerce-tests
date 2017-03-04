@@ -1,14 +1,14 @@
 /**
  * Usage:
  *
- * MYSQL_PID=1542
+ * MYSQL_PID=0000
  * MYSQL_HOST=localhost
- * MYSQL_USER=root
- * MYSQL_PASS=md551999
+ * MYSQL_USER=user
+ * MYSQL_PASS=pass
  * MYSQL_DB=woo_speed
- * LOCAL_WP=http://localhost/woo-speed/
- * WOO_API_KEY=ck_00051502bb5dd14b4883d087d258f711eea2c6a4
- * WOO_API_SEC=cs_66486962754339e06d1e8c7abd98b44e77b306d6
+ * LOCAL_WP=http://localhost/
+ * WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ * WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
  * npm start
  */
 
