@@ -1,0 +1,26 @@
+{
+  "name": "wc-rest-api-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.5",
+    "cpu-usage": "^0.1.0",
+    "hwmon": "^1.1.2",
+    "iostat": "^0.2.2",
+    "lorem-ipsum": "^1.0.3",
+    "mysql": "^2.13.0",
+    "node-usage": "0.0.3",
+    "os-toolbox": "^0.2.3",
+    "os-utils": "0.0.14",
+    "quiche": "^0.2.0",
+    "usage": "^0.7.1",
+    "woocommerce-api": "^1.4.2"
+  }
+}
