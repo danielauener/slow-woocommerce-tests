@@ -2,6 +2,17 @@
 
 A small npm test app for testing WooCommerce performance with many posts.
 
+## Warning
+
+This test application inserts and removes rows from the target database. Be sure
+to only use it if you have done a backup or a test-database dedicated just to
+the test-tool.
+
+This tool was used for some
+[Slow WooCommerce with many products](http://www.danielauener.com/slow-woocommerce-many-products/)
+tests, which you might want to read to understand the material in the benchmarks
+directory. 
+
 ## Description
 
 This app incrementally adds products to WooCommerce by using the WooCommerce
@@ -28,7 +39,7 @@ the application with a simple
 Configuration might be adjusted in the `index.js` files config-object or via
 environment variables:
 
-    MYSQL_PID=0000 MYSQL_HOST=localhost MYSQL_USER=user MYSQL_PASS=pass MYSQL_DB=woo_speed LOCAL_WP=http://localhost/ WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx POST_INSERT_CHUNK=100 ITERATIONS=100 npm start
+    MYSQL_PID=0000 MYSQL_HOST=localhost MYSQL_USER=user MYSQL_PASS=pass MYSQL_DB=woo_speed LOCAL_WP=http://localhost/ WOO_API_KEY=ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx POST_INSERT_CHUNK=100 ITERATIONS=100 REMOVE_META=false npm start
 
 After completing the test cycle, the test data is written to a benchmark csv
 file in the benchmark directory of the app directory.

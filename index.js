@@ -11,6 +11,7 @@
  * WOO_API_SEC=cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
  * POST_INSERT_CHUNK=100
  * ITERATIONS=100
+ * REMOVE_META=false
  * npm start
  */
 
@@ -19,14 +20,15 @@ var config = {
       // add your config here, or use environment variables
       // mySqlPID: 000,
       // mySqlHost: 'localhost',
-      // mySqlUser: 'local-user'
-      // mySqlPass: 'password'
-      // mySqlDB: 'database'
+      // mySqlUser: 'local-user',
+      // mySqlPass: 'password',
+      // mySqlDB: 'database',
       // postInsertChunkSize: 100,
       // iterations: 100,
       // localWP: 'http://localhost/',
       // wooAPIKey: 'ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-      // wooAPISec: 'cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+      // wooAPISec: 'cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      // removeWooMeta: false
     },
 
     fail = function(msg) {
@@ -48,6 +50,7 @@ var config = {
 
     mySqlPID = process.env.MYSQL_PID || config.mySqlPID || fail('Set Mysql PID'),
     mysql = require('mysql'),
+    removeWooMeta = process.env.REMOVE_META ? /^true$/i.test(process.env.REMOVE_META) : config.removeWooMeta || false,
     connectionParams = {
       host     : process.env.MYSQL_HOST || config.mySqlHost || 'localhost',
       user     : process.env.MYSQL_USER || config.mySqlUser || fail('Set Mysql User'),
@@ -61,7 +64,6 @@ var config = {
       x: [],
       insert: [],
       meta: [],
-      api: [],
       product: [],
       shop: [],
       cpu: [],
@@ -103,6 +105,34 @@ function addNProducts(done, n) {
 
 }
 
+// remove the impact of Woocommerce meta fields for comparison
+function maybeRemoveWooMeta(done) {
+
+  if (!removeWooMeta) {
+    return done();
+  }
+
+  var connection = mysql.createConnection(connectionParams);
+  connection.connect();
+  connection.query('DELETE FROM wp_postmeta WHERE meta_key IN ("total_sales","_visibility","_regular_price","_sale_price","_sale_price_dates_from","_sale_price_dates_to","_price","_manage_stock","_backorders","_stock","_stock_status","_wc_rating_count","_wc_average_rating")', function (error, results, fields) {
+    if (error) throw error;
+    done();
+  });
+  connection.end();
+
+}
+
+// get the products list (default list size 10 set in WP)
+function getProductsTest(done) {
+
+  var start = new Date();
+
+    WooCommerce.get('products', function(err, body) {
+      var end = new Date() - start;
+      done(end, JSON.parse(body.body).products[5].permalink);
+    });
+}
+
 // get the products list (default list size 10 set in WP)
 function getProductFrontendTest(productUrl, done) {
 
@@ -126,17 +156,6 @@ function getShopFrontendTest(done) {
     done(end);
   });
 
-}
-
-// get the products list (default list size 10 set in WP)
-function getProductsTest(done) {
-
-  var start = new Date();
-
-    WooCommerce.get('products', function(err, body) {
-      var end = new Date() - start;
-      done(end, JSON.parse(body.body).products[5].permalink);
-    });
 }
 
 // continously save cpu and mem usage for the mysqld process
@@ -167,46 +186,47 @@ timesSeries(iterations, function(i, next) {
     // measurements
     setTimeout(function() {
 
-      // get current meta-field count
-      var connection = mysql.createConnection(connectionParams);
-      connection.connect();
-      connection.query('SELECT COUNT(*) as count FROM wp_postmeta', function (error, results, fields) {
-        if (error) throw error;
+      maybeRemoveWooMeta(function() {
 
-        data.meta.push(results[0].count);
+        // get current meta-field count
+        var connection = mysql.createConnection(connectionParams);
+        connection.connect();
+        connection.query('SELECT COUNT(*) as count FROM wp_postmeta', function (error, results, fields) {
+          if (error) throw error;
 
-        cpu = [];
-        mem = [];
+          data.meta.push(results[0].count);
 
-        getProductsTest(function(productsTime, productUrl) {
-          data.api.push(productsTime);
+          cpu = [];
+          mem = [];
 
-          getProductFrontendTest(productUrl, function(productFrontTime) {
-            data.product.push(productFrontTime);
+          getProductsTest(function(time, productUrl) {
+            getProductFrontendTest(productUrl, function(productFrontTime) {
+              data.product.push(productFrontTime);
 
-            getShopFrontendTest(function(shopFrontTime) {
-              data.shop.push(shopFrontTime);
+              getShopFrontendTest(function(shopFrontTime) {
+                data.shop.push(shopFrontTime);
 
-              data.cpu.push(parseInt(cpu.reduce(function(result, v2){
-                  return result + v2;
-              }, 0) / cpu.length));
+                data.cpu.push(parseInt(cpu.reduce(function(result, v2){
+                    return result + v2;
+                }, 0) / cpu.length));
 
-              data.mem.push(parseInt(mem.reduce(function(result, v2){
-                  return result + v2;
-              }, 0) / mem.length / 1000 / 1000)); // MB
+                data.mem.push(parseInt(mem.reduce(function(result, v2){
+                    return result + v2;
+                }, 0) / mem.length / 1000 / 1000)); // MB
 
-              next();
+                next();
 
-              console.log(Object.keys(data).reduce(function(log, key) {
-                log[key] = data[key][data[key].length-1];
-                return log;
-              },{}));
+                console.log(Object.keys(data).reduce(function(log, key) {
+                  log[key] = data[key][data[key].length-1];
+                  return log;
+                },{}));
+              });
             });
           });
-        });
 
+        });
+        connection.end();
       });
-      connection.end();
     }, 5000);
 
   }, postInsertChunkSize);
@@ -214,12 +234,11 @@ timesSeries(iterations, function(i, next) {
 }, function(err, times) {
 
   var benchmark = '';
-  benchmark += 'freemem;' + data.mem.join(';') + "\n";
+  benchmark += 'mem;' + data.mem.join(';') + "\n";
   benchmark += 'cpu;' + data.cpu.join(';') + "\n";
   benchmark += 'posts;' + data.x.join(';') + "\n";
   benchmark += 'insert;' + data.insert.join(';') + "\n";
   benchmark += 'meta;' + data.meta.join(';') + "\n";
-  benchmark += 'api;' + data.api.join(';') + "\n";
   benchmark += 'product;' + data.product.join(';') + "\n";
   benchmark += 'shop;' + data.shop.join(';') + "\n";
 
