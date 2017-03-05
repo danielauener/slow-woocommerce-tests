@@ -8,12 +8,12 @@ This test application inserts and removes rows from the target database. Be sure
 to only use it if you have done a backup or a test-database dedicated just to
 the test-tool.
 
+## Description
+
 This tool was used for some
 [Slow WooCommerce with many products](http://www.danielauener.com/slow-woocommerce-many-products/)
 tests, which you might want to read to understand the material in the benchmarks
 directory. 
-
-## Description
 
 This app incrementally adds products to WooCommerce by using the WooCommerce
 API. After each insertion of data, the application pauses five seconds, to give
